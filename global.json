@@ -1,5 +1,5 @@
 {
-  "projects": [ "src", "test", "../auth-and-api/src" ],
+    "projects": [ "src", "test", "../auth-and-api/src", "../auth-and-api-ef6/src" ],
   "sdk": {
     "version": "1.0.0-preview1-002702"
   }
