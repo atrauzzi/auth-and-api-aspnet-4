@@ -1,10 +1,11 @@
 {
   "version": "1.0.0-*",
 
-	"dependencies": {
+  "dependencies": {
     "AuthAndApiEf6": "1.0.0-*",
-    "simple-config": "1.4.0"
-	},
+    "simple-config": "1.4.0",
+    "Microsoft.AspNet.Mvc": "5.2.3" 
+  },
 
   "frameworks": {
     "net46": {
