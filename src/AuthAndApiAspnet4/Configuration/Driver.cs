@@ -9,6 +9,8 @@ namespace AuthAndApi.Aspnet4.Configuration {
 
         public string Name { get; set; }
 
+        public string OwnerClass { get; set; }
+
         public IEnumerable<DriverParameter> Parameters { get; set; }
 
     }

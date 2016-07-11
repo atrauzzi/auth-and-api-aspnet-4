@@ -1,9 +1,10 @@
 ﻿using System.Web;
+using AuthAndApi.Driver;
 
 
 namespace AuthAndApi.Aspnet4 {
 
-    public static class Extensions {
+    public static class HttpSessionStateBaseExtensions {
 
         public static void SetAuthAndApiState(this HttpSessionStateBase session, State state) {
             session[$"auth-and-api:state:{state.Key}"] = state;
