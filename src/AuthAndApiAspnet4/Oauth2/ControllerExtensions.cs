@@ -1,72 +1,50 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
-using AuthAndApi.Driver.Oauth2;
-using Oauth2Driver = AuthAndApi.Driver.Oauth2.Driver;
+using AuthorizationCodeDriver = AuthAndApi.Driver.Oauth2.AuthorizationCode;
 using System.Linq;
 using System.Web;
-
+using AuthAndApi.Driver.Oauth2;
+using System.Threading.Tasks;
 
 namespace AuthAndApi.Aspnet4.Oauth2 {
 
     public static class ControllerExtensions {
 
-        public struct HandleResult {
+        public static ActionResult StartOauth2AuthorizationCode(this Controller controller, AuthorizationCodeDriver driver, string returnRouteName = "external-login-callback") {
 
-            public RedirectResult Redirect { get; }
+            var returnUri = new Uri(controller.Url.RouteUrl(returnRouteName, new {service = driver.Name}, controller.Request.Url.Scheme));
+            
+            var state = driver.Start(returnUri);
+            controller.Session.SetAuthAndApiState(state);
 
-            public Authorization Authorization { get; }
-
-            public HandleResult(RedirectResult redirect) {
-                Redirect = redirect;
-                Authorization = null;
-            }
-
-            public HandleResult(Authorization authorization) {
-                Redirect = null;
-                Authorization = authorization;
-            }
+            return new RedirectResult(state.AuthorizationUri.ToString());
 
         }
 
-        public static ActionResult StartOauth2(this Controller controller, Oauth2Driver driver, string returnRouteName = "external-login-return") {
-
-            if(driver.GrantType == Oauth2Driver.GrantTypes.AuthorizationCode) { 
-
-                var returnUri = new Uri(controller.Url.RouteUrl(returnRouteName, new {service = driver.Name}, controller.Request.Url.Scheme));
-
-                var state = driver.Start(returnUri);
-                controller.Session.SetAuthAndApiState(state);
-
-                return new RedirectResult(state.AuthorizationUri.ToString());
-
-            }
-
-            throw new NotSupportedException("Unsupported grant type.");
-
-        }
-
-        public static HandleResult HandleOauth2(this Controller controller, Oauth2Driver driver) {
+        public static async Task<CallbackResult> Oauth2AuthorizationCodeCallback(this Controller controller, AuthorizationCodeDriver driver) {
 
             var requestData = controller.Request.QueryString.Cast<string>().ToDictionary(
                 key => key,
                 key => controller.Request.QueryString[key]
             );
 
-            if(driver.GrantType == Oauth2Driver.GrantTypes.AuthorizationCode) {
+            string stateKey;
+            string authorizationCode;
 
-                string authorizationCode;
+            if (!requestData.TryGetValue("state", out stateKey))
+                throw new HttpException(422, "Missing state key.");
 
-                if(!requestData.TryGetValue("code", out authorizationCode))
-                    throw new HttpException(422, "Invalid authorization code.");
+            if(!requestData.TryGetValue("code", out authorizationCode))
+                throw new HttpException(422, "Missing authorization code.");
 
-                driver.
+            var state = controller.Session.GetAuthAndApiState(stateKey) as AuthorizationCodeState;
+            var authorization = await driver.Complete(state, authorizationCode);
 
-            }
-
-            throw new HttpException(404, "Unsupported grant type.");
+            return new CallbackResult(authorization);
 
         }
+
+        // ToDo: Make an extension method to iterate over pending authorizations and apply them.
 
     }
 
