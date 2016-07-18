@@ -1,5 +1,4 @@
 ﻿using System.Web;
-using AuthAndApi.Driver;
 
 
 namespace AuthAndApi.Aspnet4 {
@@ -11,11 +10,11 @@ namespace AuthAndApi.Aspnet4 {
         }
 
         public static State GetAuthAndApiState(this HttpSessionStateBase session, string key) {
-            return session[key] as State;
+            return session[$"auth-and-api:state:{key}"] as State;
         }
 
         public static bool HasAuthAndApiState(this HttpSessionStateBase session, string key) {
-            return session.GetAuthAndApiState(key) != null;
+            return session.GetAuthAndApiState($"auth-and-api:state:{key}") != null;
         }
 
         public static bool HasStatelessBridge(this HttpSessionStateBase session) {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Web.Mvc;
-using AuthorizationCodeDriver = AuthAndApi.Driver.Oauth2.AuthorizationCode;
 using System.Linq;
 using System.Web;
-using AuthAndApi.Driver.Oauth2;
 using System.Threading.Tasks;
+using AuthAndApi.Oauth2;
+
 
 namespace AuthAndApi.Aspnet4.Oauth2 {
 
